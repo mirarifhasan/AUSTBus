@@ -1,26 +1,46 @@
 package com.example.mapboxpractice;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.PersistableBundle;
+import android.widget.Toast;
 
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineCallback;
+import com.mapbox.android.core.location.LocationEngineRequest;
+import com.mapbox.android.core.location.LocationEngineResult;
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
+
+import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
 
     private MapView mapView;
     private MapboxMap mapboxMap;
+    private PermissionsManager permissionsManager;
+    private LocationEngine locationEngine;
+    private LocationLayerPlugin locationLayerPlugin;
+    private Location location;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +61,24 @@ public class HomeActivity extends AppCompatActivity {
 
                         // Map is set up and the style has loaded. Now you can add data or make other map adjustments.
 
-
                     }
                 });
+
+                // Placing marker on map
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(23.565656, 90.232323))
+                        .title("Eiffel Tower"));
+
+                // Click listener on marker
+                mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(@NonNull Marker marker) {
+
+                        Toast.makeText(HomeActivity.this, "Clicked on: " + marker.getTitle(), Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                });
+
             }
         });
 
@@ -91,4 +126,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onDestroy();
         mapView.onDestroy();
     }
+
+
 }
