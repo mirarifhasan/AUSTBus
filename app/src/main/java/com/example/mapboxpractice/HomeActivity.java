@@ -32,7 +32,7 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private MapView mapView;
     private MapboxMap mapboxMap;
@@ -52,38 +52,39 @@ public class HomeActivity extends AppCompatActivity {
         mapView = (MapView) findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
-        mapView.getMapAsync(new OnMapReadyCallback() {
+        mapView.getMapAsync(this);
+
+
+    }
+
+
+    @Override
+    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+        mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
+            public void onStyleLoaded(@NonNull Style style) {
 
-                        // Map is set up and the style has loaded. Now you can add data or make other map adjustments.
-
-                    }
-                });
-
-                // Placing marker on map
-                mapboxMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(23.565656, 90.232323))
-                        .title("Eiffel Tower"));
-
-                // Click listener on marker
-                mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(@NonNull Marker marker) {
-
-                        Toast.makeText(HomeActivity.this, "Clicked on: " + marker.getTitle(), Toast.LENGTH_SHORT).show();
-                        return true;
-                    }
-                });
+                // Map is set up and the style has loaded. Now you can add data or make other map adjustments.
 
             }
         });
 
+        // Placing marker on map
+        mapboxMap.addMarker(new MarkerOptions()
+                .position(new LatLng(23.749224, 90.417611))
+                .title("Eiffel Tower"));
 
+        // Click listener on marker
+        mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull Marker marker) {
+
+                Toast.makeText(HomeActivity.this, "Clicked on: " + marker.getTitle(), Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
     }
+
 
     @Override
     protected void onStart() {
