@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">MapboxPractice</string>
-    <string name="access_token">pk.eyJ1IjoibWlyYXJpZmhhc2FuIiwiYSI6ImNrNW1xNXpvbTEyZGsza28wamdvNDdtcngifQ.Sgf8Pt0ig7HpCXcfNJMMYg</string>
+    <string name="access_token">sk.eyJ1IjoibWlyYXJpZmhhc2FuIiwiYSI6ImNrNXBueW5jNTBld3QzbXBhYTlsMnA5dWIifQ.sHnUYYvIBk-_BHjoNGIiMA</string>
 </resources>
