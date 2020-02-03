@@ -1,4 +1,9 @@
 <resources>
-    <string name="app_name">MapboxPractice</string>
+
+    <string name="app_name">AUST Bus</string>
     <string name="access_token">sk.eyJ1IjoibWlyYXJpZmhhc2FuIiwiYSI6ImNrNXBueW5jNTBld3QzbXBhYTlsMnA5dWIifQ.sHnUYYvIBk-_BHjoNGIiMA</string>
+
+    <string name="drawerOpen">drawerOpen</string>
+    <string name="drawerClose">drawerClose</string>
+
 </resources>

@@ -1,7 +1,10 @@
 package com.example.mapboxpractice;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -11,6 +14,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -19,13 +24,16 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
-import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -42,7 +50,7 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
+public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener, NavigationView.OnNavigationItemSelectedListener {
 
     private MapView mapView;
     private MapboxMap mapboxMap;
@@ -53,7 +61,12 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     String showUrl = "http://trek-env.k7ptgcresc.ap-south-1.elasticbeanstalk.com/showBus.php";
     RequestQueue requestQueue;
 
+    DrawerLayout drawerLayout;
+    Toolbar toolbar;
+    NavigationView navigationView;
+    ActionBarDrawerToggle toggle;
 
+    FloatingActionButton myLocationFloatingButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +75,18 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         Mapbox.getInstance(this, getString(R.string.access_token));
         setContentView(R.layout.activity_view_bus);
 
+        //Navigation Icon
+        drawerLayout = findViewById(R.id.drawer);
+        toolbar = findViewById(R.id.toolbar);
+        navigationView = findViewById(R.id.navigationView);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawerOpen, R.string.drawerClose);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        navigationView.setNavigationItemSelectedListener(this);
+
         mapView = (MapView) findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
@@ -69,6 +94,26 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
 
         mapView.getMapAsync(this);
 
+        myLocationFloatingButton = findViewById(R.id.myLocationFloatingButton);
+        myLocationFloatingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    locationComponent = mapboxMap.getLocationComponent();
+                    CameraPosition position = new CameraPosition.Builder()
+                            .target(new LatLng(locationComponent.getLastKnownLocation().getLatitude(), locationComponent.getLastKnownLocation().getLongitude()))
+                            .zoom(15)
+                            .build();
+
+                    mapboxMap.animateCamera(CameraUpdateFactory
+                            .newCameraPosition(position), 1000);
+                }
+                catch (Exception e) {
+                    onMapReady(mapboxMap);
+                }
+
+            }
+        });
     }
 
 
@@ -96,7 +141,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
 
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Enable your GPS to continue")
+        builder.setMessage("Want to see your own location with buses?")
                 .setCancelable(false)
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
@@ -106,6 +151,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 .setNegativeButton("No, Thanks", new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
+                        loadBus.run();
                     }
                 });
         final AlertDialog alert = builder.create();
@@ -150,7 +196,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 @Override
                 public void onResponse(JSONObject response) {
                     try {
-                        JSONArray buses = response.getJSONArray("students");
+                        JSONArray buses = response.getJSONArray("buses");
 
                         mapboxMap.clear();
                         for (int i = 0; i < buses.length(); i++) {
@@ -159,20 +205,10 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                             double lat = Double.valueOf(bus.getString("Lat"));
                             double lon = Double.valueOf(bus.getString("Lon"));
 
-                            Icon icon = IconFactory.getInstance(ViewBusActivity.this).fromResource(R.drawable.bp1);
+                            Icon icon = IconFactory.getInstance(ViewBusActivity.this).fromResource(R.drawable.buslocation);
                             mapboxMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(lat, lon))
-                                    .title("Eiffel Tower")
                                     .icon(icon));
-
-                            // Click listener on marker
-                            mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
-                                @Override
-                                public boolean onMarkerClick(@NonNull Marker marker) {
-                                    Toast.makeText(ViewBusActivity.this, "Clicked on: " + marker.getTitle(), Toast.LENGTH_SHORT).show();
-                                    return true;
-                                }
-                            });
                         }
 
                     } catch (JSONException e) {
@@ -247,6 +283,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
+
     }
 
 
@@ -271,4 +308,24 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         }
     }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.viewBuses:
+                Toast.makeText(ViewBusActivity.this, "View All Bus", Toast.LENGTH_SHORT).show();
+                break;
+
+                case R.id.shareLocation:
+                Toast.makeText(ViewBusActivity.this, "Share Location Selected", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.logout:
+                Toast.makeText(ViewBusActivity.this, "Logout Selected", Toast.LENGTH_SHORT).show();
+                break;
+
+            default:
+                break;
+        }
+        return false;
+    }
 }
