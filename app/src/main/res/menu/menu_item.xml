@@ -2,13 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/viewBuses"
-        android:title="View All Bus"/>
+        android:icon="@drawable/bus"
+        android:title="View Buses" />
 
     <item
-        android:id="@+id/shareLocation"
-        android:title="Share Your Bus Location"/>
+        android:id="@+id/routeSchedule"
+        android:icon="@drawable/routemap"
+        android:title="Route &amp; Schedule" />
+
+    <item
+        android:id="@+id/sharePosition"
+        android:icon="@drawable/shareposition"
+        android:title="Share Your Bus Position" />
+
+    <item
+        android:id="@+id/complain"
+        android:icon="@drawable/report"
+        android:title="Complain / Report" />
 
     <item
         android:id="@+id/logout"
-        android:title="Logout"/>
+        android:icon="@drawable/logout"
+        android:title="Logout" />
 </menu>

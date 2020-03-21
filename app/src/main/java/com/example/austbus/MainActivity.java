@@ -1,4 +1,4 @@
-package com.example.mapboxpractice;
+package com.example.austbus;
 
 import androidx.appcompat.app.AppCompatActivity;
 

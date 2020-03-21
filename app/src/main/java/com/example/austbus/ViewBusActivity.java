@@ -1,4 +1,4 @@
-package com.example.mapboxpractice;
+package com.example.austbus;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.austbus.Remote.ServerAPI;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.mapbox.android.core.permissions.PermissionsListener;
@@ -58,7 +60,9 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     private LocationComponent locationComponent;
 
     private Handler handler = new Handler();
-    String showUrl = "http://trek-env.k7ptgcresc.ap-south-1.elasticbeanstalk.com/showBus.php";
+
+    String showUrl = new ServerAPI().baseUrl + "showBusLocation.php";
+
     RequestQueue requestQueue;
 
     DrawerLayout drawerLayout;
@@ -87,7 +91,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        mapView = (MapView) findViewById(R.id.mapView);
+        mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
         requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -196,6 +200,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 @Override
                 public void onResponse(JSONObject response) {
                     try {
+                        Log.d("Show Bus response: ", response.toString());
                         JSONArray buses = response.getJSONArray("buses");
 
                         mapboxMap.clear();
@@ -222,7 +227,6 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 }
             });
             requestQueue.add(jsonObjectRequest);
-
             handler.postDelayed(this, 5000);
         }
     };
@@ -312,11 +316,12 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()){
             case R.id.viewBuses:
-                Toast.makeText(ViewBusActivity.this, "View All Bus", Toast.LENGTH_SHORT).show();
+                drawerLayout.closeDrawers();
                 break;
 
-                case R.id.shareLocation:
-                Toast.makeText(ViewBusActivity.this, "Share Location Selected", Toast.LENGTH_SHORT).show();
+            case R.id.sharePosition:
+                Intent intent = new Intent(ViewBusActivity.this, ShareBusActivity.class);
+                startActivity(intent);
                 break;
 
             case R.id.logout:
