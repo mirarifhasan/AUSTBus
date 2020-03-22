@@ -45,22 +45,12 @@ public class ShareBusActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         requestQueue = Volley.newRequestQueue(getApplicationContext());
-
-        busAdapter = new BusAdapter(this, getMyList());
-        recyclerView.setAdapter(busAdapter);
-    }
-
-    private ArrayList<Bus> getMyList() {
-
-        ArrayList<Bus> models = new ArrayList<>();
-        Bus busObj = new Bus("Arif", "Dhaka");
-        models.add(busObj);
-
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, showUrl, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
                     JSONArray buses = response.getJSONArray("buses");
+                    ArrayList<Bus> models = new ArrayList<>();
 
                     for (int i = 0; i < buses.length(); i++) {
                         JSONObject bus = buses.getJSONObject(i);
@@ -68,6 +58,9 @@ public class ShareBusActivity extends AppCompatActivity {
                         Bus busObj = new Bus(bus.getString("BusName"), bus.getString("RouteToAUST"));
                         models.add(busObj);
                     }
+                    busAdapter = new BusAdapter(getApplicationContext(), models);
+                    recyclerView.setAdapter(busAdapter);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -79,6 +72,5 @@ public class ShareBusActivity extends AppCompatActivity {
         });
         requestQueue.add(jsonObjectRequest);
 
-        return models;
     }
 }
