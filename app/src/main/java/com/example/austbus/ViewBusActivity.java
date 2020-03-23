@@ -84,7 +84,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         toolbar = findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.navigationView);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawerOpen, R.string.drawerClose);
         drawerLayout.addDrawerListener(toggle);
@@ -257,8 +257,8 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         super.onPause();
         mapView.onPause();
         try {
-            handler.wait();
-        } catch (InterruptedException e) { }
+//            handler.wait();
+        } catch (Exception e) { }
     }
 
 
@@ -326,6 +326,11 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
 
             case R.id.logout:
                 Toast.makeText(ViewBusActivity.this, "Logout Selected", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.complain:
+                Intent intent1 = new Intent(ViewBusActivity.this, ReportActivity.class);
+                startActivity(intent1);
                 break;
 
             default:

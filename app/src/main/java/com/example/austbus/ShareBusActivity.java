@@ -3,10 +3,14 @@ package com.example.austbus;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -32,6 +36,9 @@ public class ShareBusActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     BusAdapter busAdapter;
+    LinearLayout linearLayout;
+
+    SwipeRefreshLayout swipeRefreshLayout;
 
     RequestQueue requestQueue;
     String showUrl = new ServerAPI().baseUrl + "showBusList.php";
@@ -41,14 +48,40 @@ public class ShareBusActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_bus);
 
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+
+        linearLayout = findViewById(R.id.backLinearLayout);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        getBusListOnRecyclerView();
+
+        linearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ShareBusActivity.this, ViewBusActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getBusListOnRecyclerView();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+    }
+
+    private void getBusListOnRecyclerView() {
         requestQueue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, showUrl, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+                    Log.d("Response", response.toString());
                     JSONArray buses = response.getJSONArray("buses");
                     ArrayList<Bus> models = new ArrayList<>();
 
@@ -71,6 +104,7 @@ public class ShareBusActivity extends AppCompatActivity {
             }
         });
         requestQueue.add(jsonObjectRequest);
-
     }
+
+
 }
