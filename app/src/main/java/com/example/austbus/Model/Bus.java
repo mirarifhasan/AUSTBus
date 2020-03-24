@@ -4,10 +4,23 @@ package com.example.austbus.Model;
 public class Bus {
 
     public String busName, busRoute;
+    public int busID;
 
-    public Bus(String busName, String busRoute) {
+    public Bus(String busName, String busRoute, int busID) {
         this.busName = busName;
         this.busRoute = busRoute;
+        this.busID = busID;
+    }
+
+    public Bus(int busID) {
+    }
+
+    public int getBusID() {
+        return busID;
+    }
+
+    public void setBusID(int busID) {
+        this.busID = busID;
     }
 
     public String getBusName() {

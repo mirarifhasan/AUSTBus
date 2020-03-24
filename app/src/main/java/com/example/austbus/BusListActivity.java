@@ -7,7 +7,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -21,10 +20,6 @@ import com.android.volley.toolbox.Volley;
 import com.example.austbus.Model.Bus;
 import com.example.austbus.Remote.ServerAPI;
 import com.example.austbus.ViewHolder.BusAdapter;
-import com.mapbox.mapboxsdk.annotations.Icon;
-import com.mapbox.mapboxsdk.annotations.IconFactory;
-import com.mapbox.mapboxsdk.annotations.MarkerOptions;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +27,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ShareBusActivity extends AppCompatActivity {
+public class BusListActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     BusAdapter busAdapter;
@@ -46,7 +41,7 @@ public class ShareBusActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_share_bus);
+        setContentView(R.layout.activity_bus_list);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
@@ -59,7 +54,7 @@ public class ShareBusActivity extends AppCompatActivity {
         linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ShareBusActivity.this, ViewBusActivity.class);
+                Intent intent = new Intent(BusListActivity.this, ViewBusActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -88,7 +83,7 @@ public class ShareBusActivity extends AppCompatActivity {
                     for (int i = 0; i < buses.length(); i++) {
                         JSONObject bus = buses.getJSONObject(i);
 
-                        Bus busObj = new Bus(bus.getString("BusName"), bus.getString("RouteToAUST"));
+                        Bus busObj = new Bus(bus.getString("BusName"), bus.getString("RouteToAUST"), bus.getInt("BusID"));
                         models.add(busObj);
                     }
                     busAdapter = new BusAdapter(getApplicationContext(), models);

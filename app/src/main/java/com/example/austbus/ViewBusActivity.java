@@ -25,6 +25,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.austbus.Common.Common;
 import com.example.austbus.Remote.ServerAPI;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -84,8 +85,9 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         toolbar = findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.navigationView);
         setSupportActionBar(toolbar);
-//        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawerOpen, R.string.drawerClose);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -111,8 +113,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
 
                     mapboxMap.animateCamera(CameraUpdateFactory
                             .newCameraPosition(position), 1000);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     onMapReady(mapboxMap);
                 }
 
@@ -128,14 +129,18 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
-                final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE );
+                final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-                if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     buildAlertMessageNoGps();
-                }
-                else {
+                } else {
                     enableLocationComponent(style);
-                    loadBus.run();
+                    if (Common.isConnectedToInternet(getBaseContext())) {
+                        loadBus.run();
+                    } else {
+                        Common common = new Common();
+                        common.show(getSupportFragmentManager(), "Seeking internet");
+                    }
                 }
             }
         });
@@ -155,7 +160,14 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 .setNegativeButton("No, Thanks", new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
-                        loadBus.run();
+
+                        if (Common.isConnectedToInternet(getBaseContext())) {
+                            loadBus.run();
+                        } else {
+                            Common common = new Common();
+                            common.show(getSupportFragmentManager(), "Seeking internet");
+                        }
+
                     }
                 });
         final AlertDialog alert = builder.create();
@@ -163,7 +175,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     }
 
 
-    @SuppressWarnings( {"MissingPermission"})
+    @SuppressWarnings({"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
@@ -196,7 +208,6 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         public void run() {
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, showUrl, new com.android.volley.Response.Listener<JSONObject>() {
-
                 @Override
                 public void onResponse(JSONObject response) {
                     try {
@@ -215,7 +226,6 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                                     .position(new LatLng(lat, lon))
                                     .icon(icon));
                         }
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -223,11 +233,12 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-
                 }
             });
             requestQueue.add(jsonObjectRequest);
-            handler.postDelayed(this, 5000);
+
+            handler.postDelayed(this, 3000);
+
         }
     };
 
@@ -257,8 +268,9 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         super.onPause();
         mapView.onPause();
         try {
-//            handler.wait();
-        } catch (Exception e) { }
+            handler.wait();
+        } catch (Exception e) {
+        }
     }
 
 
@@ -293,7 +305,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(this, "user_location_permission_explanation", Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "user_location_permission_explanation", Toast.LENGTH_LONG).show();
     }
 
 
@@ -307,20 +319,20 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 }
             });
         } else {
-            Toast.makeText(this, "user_location_permission_not_granted", Toast.LENGTH_LONG).show();
-            finish();
+//            Toast.makeText(this, "Location_permission_not_granted", Toast.LENGTH_LONG).show();
+//            finish();
         }
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        switch (menuItem.getItemId()){
+        switch (menuItem.getItemId()) {
             case R.id.viewBuses:
                 drawerLayout.closeDrawers();
                 break;
 
             case R.id.sharePosition:
-                Intent intent = new Intent(ViewBusActivity.this, ShareBusActivity.class);
+                Intent intent = new Intent(ViewBusActivity.this, BusListActivity.class);
                 startActivity(intent);
                 break;
 
