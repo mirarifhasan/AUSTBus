@@ -12,7 +12,9 @@ public class Bus {
         this.busID = busID;
     }
 
-    public Bus(int busID) {
+    public Bus(int busID, String busName) {
+        this.busID = busID;
+        this.busName = busName;
     }
 
     public int getBusID() {

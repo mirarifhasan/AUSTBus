@@ -38,6 +38,7 @@ dependencies {
     // Mapbox
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:8.6.1'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.11.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-core:1.4.2'
 
     // For HTTP request
     implementation 'com.mcxiaoke.volley:library:1.0.19'

@@ -51,6 +51,7 @@ public class BusAdapter extends RecyclerView.Adapter<BusViewHolder> {
 
                 Intent intent = new Intent(getApplicationContext(), ShareLocationActivity.class);
                 intent.putExtra("busID", models.get(position).getBusID());
+                intent.putExtra("busName", models.get(position).getBusName());
                 getApplicationContext().startActivity(intent);
             }
         });

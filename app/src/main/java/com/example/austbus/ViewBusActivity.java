@@ -236,9 +236,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 }
             });
             requestQueue.add(jsonObjectRequest);
-
             handler.postDelayed(this, 3000);
-
         }
     };
 
@@ -267,10 +265,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onPause() {
         super.onPause();
         mapView.onPause();
-        try {
-            handler.wait();
-        } catch (Exception e) {
-        }
+        handler.removeCallbacks(loadBus);
     }
 
 

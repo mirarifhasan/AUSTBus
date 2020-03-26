@@ -8,6 +8,14 @@
     android:orientation="vertical"
     tools:context=".ShareLocationActivity">
 
+    <TextView
+        android:id="@+id/busNameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="getting your location"
+        android:textSize="18dp"/>
+
     <com.airbnb.lottie.LottieAnimationView
         android:layout_width="match_parent"
         android:layout_height="200dp"
@@ -22,9 +30,10 @@
         android:textSize="18dp"/>
 
     <Button
+        android:id="@+id/stopSharingButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Stop Locatoin Sharing"
+        android:text="Stop Location Sharing"
         android:textColor="@color/white"
         android:textAllCaps="false"
         android:padding="10dp"
