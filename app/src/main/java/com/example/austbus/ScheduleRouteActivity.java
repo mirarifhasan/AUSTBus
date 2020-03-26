@@ -20,6 +20,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.austbus.Model.Bus;
 import com.example.austbus.Remote.ServerAPI;
+import com.example.austbus.ViewHolder.BusDetailsAdapter;
 import com.example.austbus.ViewHolder.BusListAdapter;
 
 import org.json.JSONArray;
@@ -28,10 +29,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class BusListActivity extends AppCompatActivity {
+public class ScheduleRouteActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
-    BusListAdapter busListAdapter;
+    BusDetailsAdapter busDetailsAdapter;
     LinearLayout linearLayout;
 
     SwipeRefreshLayout swipeRefreshLayout;
@@ -42,7 +43,7 @@ public class BusListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bus_list);
+        setContentView(R.layout.activity_schedule_route);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
@@ -55,7 +56,7 @@ public class BusListActivity extends AppCompatActivity {
         linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(BusListActivity.this, ViewBusActivity.class);
+                Intent intent = new Intent(ScheduleRouteActivity.this, ViewBusActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -69,10 +70,12 @@ public class BusListActivity extends AppCompatActivity {
             }
         });
 
+
     }
 
     private void getBusListOnRecyclerView() {
         requestQueue = Volley.newRequestQueue(getApplicationContext());
+
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, showUrl, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -84,11 +87,11 @@ public class BusListActivity extends AppCompatActivity {
                     for (int i = 0; i < buses.length(); i++) {
                         JSONObject bus = buses.getJSONObject(i);
 
-                        Bus busObj = new Bus(bus.getString("BusName"), bus.getString("RouteToAUST"), bus.getInt("BusID"));
+                        Bus busObj = new Bus(bus.getString("BusName"), bus.getString("RouteToAUST"), bus.getInt("BusID"), bus.getString("StartingTime"), bus.getString("DepartureTime"));
                         models.add(busObj);
                     }
-                    busListAdapter = new BusListAdapter(getApplicationContext(), models);
-                    recyclerView.setAdapter(busListAdapter);
+                    busDetailsAdapter = new BusDetailsAdapter(getApplicationContext(), models);
+                    recyclerView.setAdapter(busDetailsAdapter);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -97,11 +100,9 @@ public class BusListActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(BusListActivity.this, "Response Error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ScheduleRouteActivity.this, "Response Error", Toast.LENGTH_SHORT).show();
             }
         });
         requestQueue.add(jsonObjectRequest);
     }
-
-
 }

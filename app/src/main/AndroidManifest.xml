@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ShareLocationActivity"></activity>
+        <activity android:name=".ScheduleRouteActivity"></activity>
+        <activity android:name=".ShareLocationActivity" />
         <activity android:name=".ReportActivity" />
         <activity android:name=".BusListActivity" />
         <activity android:name=".ViewBusActivity" />

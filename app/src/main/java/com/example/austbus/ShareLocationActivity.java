@@ -121,6 +121,8 @@ public class ShareLocationActivity extends AppCompatActivity {
         stopSharingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                locationManager.removeUpdates(locationListener);
+                locationManager = null;
                 Intent intent1 = new Intent(ShareLocationActivity.this, BusListActivity.class);
                 startActivity(intent1);
                 finish();

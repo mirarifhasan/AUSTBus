@@ -331,8 +331,9 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 startActivity(intent);
                 break;
 
-            case R.id.logout:
-                Toast.makeText(ViewBusActivity.this, "Logout Selected", Toast.LENGTH_SHORT).show();
+            case R.id.routeSchedule:
+                Intent intent2 = new Intent(ViewBusActivity.this, ScheduleRouteActivity.class);
+                startActivity(intent2);
                 break;
 
             case R.id.complain:

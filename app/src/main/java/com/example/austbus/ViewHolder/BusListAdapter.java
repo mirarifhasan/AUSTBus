@@ -2,49 +2,44 @@ package com.example.austbus.ViewHolder;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.austbus.MainActivity;
 import com.example.austbus.Model.Bus;
 import com.example.austbus.R;
 import com.example.austbus.ShareLocationActivity;
-import com.example.austbus.ViewBusActivity;
 
 import java.util.ArrayList;
 
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
-public class BusAdapter extends RecyclerView.Adapter<BusViewHolder> {
+public class BusListAdapter extends RecyclerView.Adapter<BusListViewHolder> {
 
     Context c;
     ArrayList<Bus> models;
 
-    public BusAdapter(Context c, ArrayList<Bus> models) {
+    public BusListAdapter(Context c, ArrayList<Bus> models) {
         this.c = c;
         this.models = models;
     }
 
     @NonNull
     @Override
-    public BusViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public BusListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.share_bus_list_card, parent, false);
-        return new BusViewHolder(view);
+        return new BusListViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BusViewHolder busViewHolder, int position) {
-        busViewHolder.busName.setText(models.get(position).getBusName());
-        busViewHolder.busRoute.setText(models.get(position).getBusRoute());
+    public void onBindViewHolder(@NonNull BusListViewHolder busListViewHolder, int position) {
+        busListViewHolder.busName.setText(models.get(position).getBusName());
+        busListViewHolder.busRoute.setText(models.get(position).getBusRoute());
 
-        busViewHolder.constraintLayout.setOnClickListener(new View.OnClickListener() {
+        busListViewHolder.constraintLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Toast.makeText(getApplicationContext(), Integer.toString(models.get(position).getBusID()), Toast.LENGTH_SHORT).show();
