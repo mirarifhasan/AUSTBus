@@ -20,9 +20,11 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -62,6 +64,8 @@ public class ShareLocationActivity extends AppCompatActivity {
 
     TextView busNameTV;
     Button stopSharingBtn;
+    LinearLayout linearLayout;
+    LottieAnimationView lottieAnimationView;
     Bus bus;
 
     RequestQueue requestQueue;
@@ -78,13 +82,22 @@ public class ShareLocationActivity extends AppCompatActivity {
         busNameTV = (TextView) findViewById(R.id.busNameTextView);
         busNameTV.setText(bus.getBusName() + " getting your location");
 
+        linearLayout = findViewById(R.id.successLiniarLayout);
+        linearLayout.setVisibility(View.INVISIBLE);
+        lottieAnimationView = findViewById(R.id.loadingAnimation);
+        final boolean[] b = {false};
+
         requestQueue = Volley.newRequestQueue(getApplicationContext());
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                Toast.makeText(ShareLocationActivity.this, String.valueOf(location.getLatitude()), Toast.LENGTH_SHORT).show();
+                b[0] = true;
+                if(b[0]){
+                    linearLayout.setVisibility(View.VISIBLE);
+                    lottieAnimationView.setVisibility(View.INVISIBLE);
+                }
                 sendLocationToServer(location);
             }
 
