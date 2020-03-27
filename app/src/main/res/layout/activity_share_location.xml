@@ -9,15 +9,28 @@
     tools:context=".ShareLocationActivity">
 
 
-    <com.airbnb.lottie.LottieAnimationView
+
+
+    <LinearLayout
         android:id="@+id/loadingAnimation"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginTop="210dp"
-        app:lottie_fileName="loading.json"
-        app:lottie_loop="true"
-        app:lottie_autoPlay="true"/>
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
+        <com.airbnb.lottie.LottieAnimationView
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            app:lottie_fileName="loading.json"
+            app:lottie_loop="true"
+            app:lottie_autoPlay="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trying to take your location, please wait..."
+            android:layout_gravity="center"/>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/successLiniarLayout"

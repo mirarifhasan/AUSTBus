@@ -65,12 +65,13 @@ public class ShareLocationActivity extends AppCompatActivity {
     TextView busNameTV;
     Button stopSharingBtn;
     LinearLayout linearLayout;
-    LottieAnimationView lottieAnimationView;
+    LinearLayout linearLayoutLoadingAnimation;
     Bus bus;
 
     RequestQueue requestQueue;
     String updateUrl = new ServerAPI().baseUrl + "updatebus.php";
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @SuppressLint("CutPasteId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +85,7 @@ public class ShareLocationActivity extends AppCompatActivity {
 
         linearLayout = findViewById(R.id.successLiniarLayout);
         linearLayout.setVisibility(View.INVISIBLE);
-        lottieAnimationView = findViewById(R.id.loadingAnimation);
+        linearLayoutLoadingAnimation = findViewById(R.id.loadingAnimation);
         final boolean[] b = {false};
 
         requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -93,12 +94,13 @@ public class ShareLocationActivity extends AppCompatActivity {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                b[0] = true;
-                if(b[0]){
-                    linearLayout.setVisibility(View.VISIBLE);
-                    lottieAnimationView.setVisibility(View.INVISIBLE);
-                }
+
                 sendLocationToServer(location);
+                if(!b[0]){
+                    linearLayout.setVisibility(View.VISIBLE);
+                    linearLayoutLoadingAnimation.setVisibility(View.INVISIBLE);
+                    b[0] = true;
+                }
             }
 
             @Override

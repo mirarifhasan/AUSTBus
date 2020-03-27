@@ -155,6 +155,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        loadBus.run();
                     }
                 })
                 .setNegativeButton("No, Thanks", new DialogInterface.OnClickListener() {
@@ -314,8 +315,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 }
             });
         } else {
-//            Toast.makeText(this, "Location_permission_not_granted", Toast.LENGTH_LONG).show();
-//            finish();
+            Toast.makeText(this, "Location_permission_not_granted", Toast.LENGTH_LONG).show();
         }
     }
 
