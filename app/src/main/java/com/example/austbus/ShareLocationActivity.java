@@ -69,7 +69,7 @@ public class ShareLocationActivity extends AppCompatActivity {
     private Handler handler = new Handler();
 
     Bus bus;
-    TextView busNameTV;
+    TextView busNameTV, loadingTV;
     Button stopSharingBtn;
 
     double lat, lon;
@@ -89,6 +89,7 @@ public class ShareLocationActivity extends AppCompatActivity {
 
         busNameTV = (TextView) findViewById(R.id.busNameTextView);
         busNameTV.setText(bus.getBusName() + " getting your location");
+        loadingTV = findViewById(R.id.loadingTextView);
 
         linearLayout = findViewById(R.id.successLiniarLayout);
         linearLayout.setVisibility(View.INVISIBLE);
@@ -117,15 +118,9 @@ public class ShareLocationActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Location location) {
                 if(location != null){
-
+                    loadingTV.setText("Almost done...");
                     lat = location.getLatitude();
                     lon = location.getLongitude();
-
-                    if(!b[0]){
-                        linearLayout.setVisibility(View.VISIBLE);
-                        linearLayoutLoadingAnimation.setVisibility(View.INVISIBLE);
-                        b[0] = true;
-                    }
                 }
                 else {
                     if(b[0]){
@@ -148,6 +143,12 @@ public class ShareLocationActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         Log.d("Response Data", response);
+
+                        if(!b[0]){
+                            linearLayout.setVisibility(View.VISIBLE);
+                            linearLayoutLoadingAnimation.setVisibility(View.INVISIBLE);
+                            b[0] = true;
+                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override

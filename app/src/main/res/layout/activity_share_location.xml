@@ -8,9 +8,6 @@
     android:orientation="vertical"
     tools:context=".ShareLocationActivity">
 
-
-
-
     <LinearLayout
         android:id="@+id/loadingAnimation"
         android:layout_width="match_parent"
@@ -26,6 +23,7 @@
             app:lottie_autoPlay="true"/>
 
         <TextView
+            android:id="@+id/loadingTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Trying to take your location, please wait..."
