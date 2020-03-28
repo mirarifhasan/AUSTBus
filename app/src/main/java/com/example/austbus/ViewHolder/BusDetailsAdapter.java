@@ -1,23 +1,17 @@
 package com.example.austbus.ViewHolder;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.austbus.Model.Bus;
 import com.example.austbus.R;
-import com.example.austbus.ShareLocationActivity;
 
 import java.util.ArrayList;
-
-import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class BusDetailsAdapter extends RecyclerView.Adapter<BusDetailsViewHolder> {
 

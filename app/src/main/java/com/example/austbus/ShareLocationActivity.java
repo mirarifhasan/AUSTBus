@@ -1,30 +1,17 @@
 package com.example.austbus;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Point;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.airbnb.lottie.LottieAnimationView;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -37,27 +24,8 @@ import com.example.austbus.Remote.ServerAPI;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.mapbox.android.core.location.LocationEngine;
-import com.mapbox.android.core.location.LocationEngineProvider;
-import com.mapbox.android.core.location.LocationEngineRequest;
-import com.mapbox.android.core.location.LocationEngineResult;
-import com.mapbox.android.core.permissions.PermissionsListener;
-import com.mapbox.android.core.permissions.PermissionsManager;
-import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.location.LocationComponent;
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
-import com.mapbox.mapboxsdk.location.LocationComponentOptions;
-import com.mapbox.mapboxsdk.location.modes.CameraMode;
-import com.mapbox.mapboxsdk.location.modes.RenderMode;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
-import com.mapbox.mapboxsdk.maps.Style;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ShareLocationActivity extends AppCompatActivity {
@@ -102,11 +70,11 @@ public class ShareLocationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    sendLocationToServer.wait();
-                } catch (InterruptedException e) {
+                    handler.removeCallbacks(sendLocationToServer);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                Intent intent1 = new Intent(ShareLocationActivity.this, BusListActivity.class);
+                Intent intent1 = new Intent(ShareLocationActivity.this, ViewBusActivity.class);
                 startActivity(intent1);
                 finish();
             }
@@ -178,10 +146,13 @@ public class ShareLocationActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         try {
-            sendLocationToServer.wait();
-        } catch (InterruptedException e) {
+            handler.removeCallbacks(sendLocationToServer);
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        Intent intent1 = new Intent(ShareLocationActivity.this, ViewBusActivity.class);
+        startActivity(intent1);
+        finish();
     }
 
 }

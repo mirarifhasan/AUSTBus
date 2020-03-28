@@ -1,10 +1,5 @@
 package com.example.austbus;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +7,12 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -21,7 +22,6 @@ import com.android.volley.toolbox.Volley;
 import com.example.austbus.Model.Bus;
 import com.example.austbus.Remote.ServerAPI;
 import com.example.austbus.ViewHolder.BusDetailsAdapter;
-import com.example.austbus.ViewHolder.BusListAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +36,7 @@ public class ScheduleRouteActivity extends AppCompatActivity {
     LinearLayout linearLayout;
 
     SwipeRefreshLayout swipeRefreshLayout;
+    LottieAnimationView loadingAnimation;
 
     RequestQueue requestQueue;
     String showUrl = new ServerAPI().baseUrl + "showBusList.php";
@@ -46,6 +47,7 @@ public class ScheduleRouteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_schedule_route);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
 
         linearLayout = findViewById(R.id.backLinearLayout);
         recyclerView = findViewById(R.id.recyclerView);
@@ -92,6 +94,7 @@ public class ScheduleRouteActivity extends AppCompatActivity {
                     }
                     busDetailsAdapter = new BusDetailsAdapter(getApplicationContext(), models);
                     recyclerView.setAdapter(busDetailsAdapter);
+                    loadingAnimation.setVisibility(View.INVISIBLE);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -100,7 +103,7 @@ public class ScheduleRouteActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(ScheduleRouteActivity.this, "Response Error", Toast.LENGTH_SHORT).show();
+                getBusListOnRecyclerView();
             }
         });
         requestQueue.add(jsonObjectRequest);

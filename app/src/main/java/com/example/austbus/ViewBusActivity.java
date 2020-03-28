@@ -1,11 +1,5 @@
 package com.example.austbus;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,6 +12,12 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -253,6 +253,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onStart() {
         super.onStart();
         mapView.onStart();
+        loadBus.run();
     }
 
 
@@ -260,6 +261,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onResume() {
         super.onResume();
         mapView.onResume();
+        handler.removeCallbacks(loadBus);
     }
 
 
@@ -275,6 +277,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onStop() {
         super.onStop();
         mapView.onStop();
+        handler.removeCallbacks(loadBus);
     }
 
 
@@ -296,7 +299,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
-
+        handler.removeCallbacks(loadBus);
     }
 
 
@@ -328,16 +331,19 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 break;
 
             case R.id.sharePosition:
+                handler.removeCallbacks(loadBus);
                 Intent intent = new Intent(ViewBusActivity.this, BusListActivity.class);
                 startActivity(intent);
                 break;
 
             case R.id.routeSchedule:
+                handler.removeCallbacks(loadBus);
                 Intent intent2 = new Intent(ViewBusActivity.this, ScheduleRouteActivity.class);
                 startActivity(intent2);
                 break;
 
             case R.id.complain:
+                handler.removeCallbacks(loadBus);
                 Intent intent1 = new Intent(ViewBusActivity.this, ReportActivity.class);
                 startActivity(intent1);
                 break;

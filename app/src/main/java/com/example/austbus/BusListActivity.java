@@ -1,10 +1,5 @@
 package com.example.austbus;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +7,12 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -35,6 +36,7 @@ public class BusListActivity extends AppCompatActivity {
     LinearLayout linearLayout;
 
     SwipeRefreshLayout swipeRefreshLayout;
+    LottieAnimationView lottieAnimationView;
 
     RequestQueue requestQueue;
     String showUrl = new ServerAPI().baseUrl + "showBusList.php";
@@ -45,6 +47,7 @@ public class BusListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_bus_list);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        lottieAnimationView = findViewById(R.id.loadingAnimation);
 
         linearLayout = findViewById(R.id.backLinearLayout);
         recyclerView = findViewById(R.id.recyclerView);
@@ -89,6 +92,7 @@ public class BusListActivity extends AppCompatActivity {
                     }
                     busListAdapter = new BusListAdapter(getApplicationContext(), models);
                     recyclerView.setAdapter(busListAdapter);
+                    lottieAnimationView.setVisibility(View.INVISIBLE);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -97,7 +101,7 @@ public class BusListActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(BusListActivity.this, "Response Error", Toast.LENGTH_SHORT).show();
+                getBusListOnRecyclerView();
             }
         });
         requestQueue.add(jsonObjectRequest);
