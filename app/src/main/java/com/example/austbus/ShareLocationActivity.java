@@ -34,6 +34,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.austbus.Model.Bus;
 import com.example.austbus.Remote.ServerAPI;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
@@ -59,25 +62,29 @@ import java.util.Map;
 
 public class ShareLocationActivity extends AppCompatActivity {
 
-    private LocationManager locationManager;
-    private LocationListener locationListener;
-
-    TextView busNameTV;
-    Button stopSharingBtn;
+    private FusedLocationProviderClient client;
     LinearLayout linearLayout;
     LinearLayout linearLayoutLoadingAnimation;
+
+    private Handler handler = new Handler();
+
     Bus bus;
+    TextView busNameTV;
+    Button stopSharingBtn;
+
+    double lat, lon;
+    final boolean[] b = {false};
 
     RequestQueue requestQueue;
     String updateUrl = new ServerAPI().baseUrl + "updatebus.php";
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @SuppressLint("CutPasteId")
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_location);
 
+        requestQueue = Volley.newRequestQueue(getApplicationContext());
+
+        client = LocationServices.getFusedLocationProviderClient(this);
         bus = new Bus(getIntent().getIntExtra("busID", 0), getIntent().getStringExtra("busName"));
 
         busNameTV = (TextView) findViewById(R.id.busNameTextView);
@@ -86,89 +93,94 @@ public class ShareLocationActivity extends AppCompatActivity {
         linearLayout = findViewById(R.id.successLiniarLayout);
         linearLayout.setVisibility(View.INVISIBLE);
         linearLayoutLoadingAnimation = findViewById(R.id.loadingAnimation);
-        final boolean[] b = {false};
 
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
-
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-
-                sendLocationToServer(location);
-                if(!b[0]){
-                    linearLayout.setVisibility(View.VISIBLE);
-                    linearLayoutLoadingAnimation.setVisibility(View.INVISIBLE);
-                    b[0] = true;
-                }
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-            }
-        };
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.INTERNET
-                }, 10);
-            }
-            return;
-        }
-        else {
-            locationManager.requestLocationUpdates("gps", 200, -1, locationListener);
-        }
-
+        sendLocationToServer.run(); //There is another function for send location to server
 
         stopSharingBtn = findViewById(R.id.stopSharingButton);
         stopSharingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                locationManager.removeUpdates(locationListener);
-                locationManager = null;
+                try {
+                    sendLocationToServer.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 Intent intent1 = new Intent(ShareLocationActivity.this, BusListActivity.class);
                 startActivity(intent1);
                 finish();
             }
         });
-
     }
 
-    private void sendLocationToServer(Location location) {
-        StringRequest request = new StringRequest(Request.Method.POST, updateUrl, new Response.Listener<String>() {
+    private void getLocation() {
+        client.getLastLocation().addOnSuccessListener(ShareLocationActivity.this, new OnSuccessListener<Location>() {
             @Override
-            public void onResponse(String response) {
-                Log.d("Response Data", response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+            public void onSuccess(Location location) {
+                if(location != null){
 
-            }
-        }){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> parameters = new HashMap<String, String>();
-                parameters.put("busID", String.valueOf(bus.getBusID()));
-                parameters.put("Lat", String.valueOf(location.getLatitude()));
-                parameters.put("Lon", String.valueOf(location.getLongitude()));
-                Log.d("GPS Position", parameters.toString());
+                    lat = location.getLatitude();
+                    lon = location.getLongitude();
 
-                return parameters;
+                    if(!b[0]){
+                        linearLayout.setVisibility(View.VISIBLE);
+                        linearLayoutLoadingAnimation.setVisibility(View.INVISIBLE);
+                        b[0] = true;
+                    }
+                }
+                else {
+                    if(b[0]){
+                        linearLayout.setVisibility(View.INVISIBLE);
+                        linearLayoutLoadingAnimation.setVisibility(View.VISIBLE);
+                        b[0] = false;
+                    }
+                }
             }
-        };
-        requestQueue.add(request);
+        });
     }
+
+    private Runnable sendLocationToServer = new Runnable() {
+        @Override
+        public void run() {
+            getLocation();
+
+            if(lat!=0.0 && lon!=0.0){
+                StringRequest request = new StringRequest(Request.Method.POST, updateUrl, new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response Data", response);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                }){
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> parameters = new HashMap<String, String>();
+                        parameters.put("busID", String.valueOf(bus.getBusID()));
+                        parameters.put("Lat", String.valueOf(lat));
+                        parameters.put("Lon", String.valueOf(lon));
+                        Log.d("GPS Position", parameters.toString());
+
+                        return parameters;
+                    }
+                };
+                requestQueue.add(request);
+            }
+
+            handler.postDelayed(this, 3000);
+        }
+    };
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        try {
+            sendLocationToServer.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

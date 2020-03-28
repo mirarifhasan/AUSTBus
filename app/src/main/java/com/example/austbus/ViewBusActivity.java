@@ -225,7 +225,8 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                             Icon icon = IconFactory.getInstance(ViewBusActivity.this).fromResource(R.drawable.buslocation);
                             mapboxMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(lat, lon))
-                                    .icon(icon));
+                                    .icon(icon)
+                                    .title(bus.getString("BusName")));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
