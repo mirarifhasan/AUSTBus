@@ -1,7 +1,11 @@
 package com.example.austbus;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -9,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,6 +24,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.austbus.Common.Common;
 import com.example.austbus.Model.Bus;
 import com.example.austbus.Remote.ServerAPI;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -35,6 +41,7 @@ public class ShareLocationActivity extends AppCompatActivity {
     LinearLayout linearLayoutLoadingAnimation;
 
     private Handler handler = new Handler();
+    private boolean isThreadAlive = false;
 
     Bus bus;
     TextView busNameTV, loadingTV;
@@ -70,7 +77,10 @@ public class ShareLocationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    handler.removeCallbacks(sendLocationToServer);
+                    if (isThreadAlive) {
+                        handler.removeCallbacks(sendLocationToServer);
+                        isThreadAlive = false;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -85,13 +95,25 @@ public class ShareLocationActivity extends AppCompatActivity {
         client.getLastLocation().addOnSuccessListener(ShareLocationActivity.this, new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-                if(location != null){
+                if (location != null) {
+
                     loadingTV.setText("Almost done...");
                     lat = location.getLatitude();
                     lon = location.getLongitude();
-                }
-                else {
-                    if(b[0]){
+                } else {
+                    handler.removeCallbacks(sendLocationToServer);
+                    isThreadAlive = false;
+
+                    final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        buildAlertMessageNoGps();
+                    }
+                    if (!Common.isConnectedToInternet(getBaseContext())) {
+                        Common common = new Common();
+                        common.show(getSupportFragmentManager(), "Seeking internet");
+                    }
+
+                    if (b[0]) {
                         linearLayout.setVisibility(View.INVISIBLE);
                         linearLayoutLoadingAnimation.setVisibility(View.VISIBLE);
                         b[0] = false;
@@ -104,15 +126,16 @@ public class ShareLocationActivity extends AppCompatActivity {
     private Runnable sendLocationToServer = new Runnable() {
         @Override
         public void run() {
+            isThreadAlive = true;
             getLocation();
 
-            if(lat!=0.0 && lon!=0.0){
+            if (lat != 0.0 && lon != 0.0) {
                 StringRequest request = new StringRequest(Request.Method.POST, updateUrl, new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         Log.d("Response Data", response);
 
-                        if(!b[0]){
+                        if (!b[0]) {
                             linearLayout.setVisibility(View.VISIBLE);
                             linearLayoutLoadingAnimation.setVisibility(View.INVISIBLE);
                             b[0] = true;
@@ -123,7 +146,7 @@ public class ShareLocationActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                }){
+                }) {
                     @Override
                     protected Map<String, String> getParams() throws AuthFailureError {
                         Map<String, String> parameters = new HashMap<String, String>();
@@ -142,11 +165,41 @@ public class ShareLocationActivity extends AppCompatActivity {
         }
     };
 
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Please turn on your GPS")
+                .setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        if (!isThreadAlive) sendLocationToServer.run();
+                    }
+                })
+                .setNegativeButton("No, Thanks", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                        if (isThreadAlive) {
+                            handler.removeCallbacks(sendLocationToServer);
+                            isThreadAlive = false;
+                        }
+                        Intent intent1 = new Intent(ShareLocationActivity.this, ViewBusActivity.class);
+                        intent1.putExtra("common.gpsChoice", true);
+                        startActivity(intent1);
+                        finish();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         try {
-            handler.removeCallbacks(sendLocationToServer);
+            if (isThreadAlive) {
+                handler.removeCallbacks(sendLocationToServer);
+                isThreadAlive = false;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

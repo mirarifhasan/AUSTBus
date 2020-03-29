@@ -61,6 +61,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     private LocationComponent locationComponent;
 
     private Handler handler = new Handler();
+    private boolean isThreadRunning = false;
 
     String showUrl = new ServerAPI().baseUrl + "showBusLocation.php";
 
@@ -79,6 +80,10 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
 
         Mapbox.getInstance(this, getString(R.string.access_token));
         setContentView(R.layout.activity_view_bus);
+
+        try{
+            Common.gpsChoice = getIntent().getBooleanExtra("common.gpsChoice", Common.gpsChoice);
+        }catch (Exception e){}
 
         //Navigation Icon
         drawerLayout = findViewById(R.id.drawer);
@@ -114,6 +119,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                     mapboxMap.animateCamera(CameraUpdateFactory
                             .newCameraPosition(position), 1000);
                 } catch (Exception e) {
+                    Common.gpsChoice = false;
                     onMapReady(mapboxMap);
                 }
 
@@ -132,11 +138,14 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    buildAlertMessageNoGps();
+                    if(!Common.gpsChoice){
+                        buildAlertMessageNoGps();
+                        Common.gpsChoice = true;
+                    }
                 } else {
                     enableLocationComponent(style);
                     if (Common.isConnectedToInternet(getBaseContext())) {
-                        loadBus.run();
+                        if (!isThreadRunning) loadBus.run();
                     } else {
                         Common common = new Common();
                         common.show(getSupportFragmentManager(), "Seeking internet");
@@ -155,15 +164,16 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                        loadBus.run();
+                        if (!isThreadRunning) loadBus.run();
+                        Common.gpsChoice = true;
                     }
                 })
                 .setNegativeButton("No, Thanks", new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
-
+                        Common.gpsChoice = true;
                         if (Common.isConnectedToInternet(getBaseContext())) {
-                            loadBus.run();
+                            if (!isThreadRunning) loadBus.run();
                         } else {
                             Common common = new Common();
                             common.show(getSupportFragmentManager(), "Seeking internet");
@@ -207,7 +217,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     private Runnable loadBus = new Runnable() {
         @Override
         public void run() {
-
+            isThreadRunning = true;
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, showUrl, new com.android.volley.Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -215,18 +225,21 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                         Log.d("Show Bus response: ", response.toString());
                         JSONArray buses = response.getJSONArray("buses");
 
-                        mapboxMap.clear();
-                        for (int i = 0; i < buses.length(); i++) {
-                            JSONObject bus = buses.getJSONObject(i);
+                        try {
+                            mapboxMap.clear();
+                            for (int i = 0; i < buses.length(); i++) {
+                                JSONObject bus = buses.getJSONObject(i);
 
-                            double lat = Double.valueOf(bus.getString("Lat"));
-                            double lon = Double.valueOf(bus.getString("Lon"));
+                                double lat = Double.valueOf(bus.getString("Lat"));
+                                double lon = Double.valueOf(bus.getString("Lon"));
 
-                            Icon icon = IconFactory.getInstance(ViewBusActivity.this).fromResource(R.drawable.buslocation);
-                            mapboxMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(lat, lon))
-                                    .icon(icon)
-                                    .title(bus.getString("BusName")));
+                                Icon icon = IconFactory.getInstance(ViewBusActivity.this).fromResource(R.drawable.buslocation);
+                                mapboxMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(lat, lon))
+                                        .icon(icon)
+                                        .title(bus.getString("BusName")));
+                            }
+                        } catch (Exception e) {
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -253,7 +266,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onStart() {
         super.onStart();
         mapView.onStart();
-        loadBus.run();
+        if (!isThreadRunning) loadBus.run();
     }
 
 
@@ -261,7 +274,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onResume() {
         super.onResume();
         mapView.onResume();
-        handler.removeCallbacks(loadBus);
+        if (!isThreadRunning) loadBus.run();
     }
 
 
@@ -270,6 +283,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         super.onPause();
         mapView.onPause();
         handler.removeCallbacks(loadBus);
+        isThreadRunning = false;
     }
 
 
@@ -278,6 +292,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         super.onStop();
         mapView.onStop();
         handler.removeCallbacks(loadBus);
+        isThreadRunning = false;
     }
 
 
@@ -300,6 +315,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         super.onDestroy();
         mapView.onDestroy();
         handler.removeCallbacks(loadBus);
+        isThreadRunning = false;
     }
 
 
@@ -332,20 +348,26 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
 
             case R.id.sharePosition:
                 handler.removeCallbacks(loadBus);
+                isThreadRunning = false;
                 Intent intent = new Intent(ViewBusActivity.this, BusListActivity.class);
                 startActivity(intent);
+                finish();
                 break;
 
             case R.id.routeSchedule:
                 handler.removeCallbacks(loadBus);
+                isThreadRunning = false;
                 Intent intent2 = new Intent(ViewBusActivity.this, ScheduleRouteActivity.class);
                 startActivity(intent2);
+                finish();
                 break;
 
             case R.id.complain:
                 handler.removeCallbacks(loadBus);
+                isThreadRunning = false;
                 Intent intent1 = new Intent(ViewBusActivity.this, ReportActivity.class);
                 startActivity(intent1);
+                finish();
                 break;
 
             default:

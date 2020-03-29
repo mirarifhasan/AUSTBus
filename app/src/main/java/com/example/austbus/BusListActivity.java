@@ -107,5 +107,11 @@ public class BusListActivity extends AppCompatActivity {
         requestQueue.add(jsonObjectRequest);
     }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(BusListActivity.this, ViewBusActivity.class);
+        startActivity(intent);
+        finish();
+    }
 }

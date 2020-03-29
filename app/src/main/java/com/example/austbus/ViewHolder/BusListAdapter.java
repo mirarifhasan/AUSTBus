@@ -1,5 +1,6 @@
 package com.example.austbus.ViewHolder;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -48,6 +49,7 @@ public class BusListAdapter extends RecyclerView.Adapter<BusListViewHolder> {
                 intent.putExtra("busID", models.get(position).getBusID());
                 intent.putExtra("busName", models.get(position).getBusName());
                 getApplicationContext().startActivity(intent);
+                ((Activity)getApplicationContext()).finish();
             }
         });
     }

@@ -104,4 +104,12 @@ public class ReportActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(ReportActivity.this, ViewBusActivity.class);
+        startActivity(intent);
+        finish();
+    }
 }
