@@ -135,6 +135,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
+                enableLocationComponent(style);
                 final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -143,7 +144,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                         Common.gpsChoice = true;
                     }
                 } else {
-                    enableLocationComponent(style);
+                    // enableLocationComponent(style);
                     if (Common.isConnectedToInternet(getBaseContext())) {
                         if (!isThreadRunning) loadBus.run();
                     } else {
@@ -160,7 +161,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Want to see your own location with buses?")
-                .setCancelable(false)
+                .setCancelable(true)
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
@@ -321,7 +322,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-//        Toast.makeText(this, "user_location_permission_explanation", Toast.LENGTH_LONG).show();
+        // Toast.makeText(this, "user_location_permission_explanation", Toast.LENGTH_LONG).show();
     }
 
 
@@ -335,7 +336,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 }
             });
         } else {
-            Toast.makeText(this, "Location_permission_not_granted", Toast.LENGTH_LONG).show();
+            // Toast.makeText(this, "Location_permission_not_granted", Toast.LENGTH_LONG).show();
         }
     }
 

@@ -49,7 +49,7 @@ public class BusListAdapter extends RecyclerView.Adapter<BusListViewHolder> {
                 intent.putExtra("busID", models.get(position).getBusID());
                 intent.putExtra("busName", models.get(position).getBusName());
                 getApplicationContext().startActivity(intent);
-                ((Activity)getApplicationContext()).finish();
+                // ((Activity)getApplicationContext()).finish();
             }
         });
     }

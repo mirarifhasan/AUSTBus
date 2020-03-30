@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
@@ -30,8 +31,11 @@ import com.example.austbus.Remote.ServerAPI;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ShareLocationActivity extends AppCompatActivity {
@@ -91,7 +95,14 @@ public class ShareLocationActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressWarnings({"MissingPermission"})
     private void getLocation() {
+        if (!PermissionsManager.areLocationPermissionsGranted(getApplicationContext())) {
+            Toast.makeText(ShareLocationActivity.this, "Location permission not provided", Toast.LENGTH_SHORT).show();
+            Intent intent1 = new Intent(ShareLocationActivity.this, ViewBusActivity.class);
+            startActivity(intent1);
+            finish();
+        }
         client.getLastLocation().addOnSuccessListener(ShareLocationActivity.this, new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
@@ -103,16 +114,17 @@ public class ShareLocationActivity extends AppCompatActivity {
                 } else {
                     handler.removeCallbacks(sendLocationToServer);
                     isThreadAlive = false;
+                    Toast.makeText(ShareLocationActivity.this, "Thread Off, location not accessed", Toast.LENGTH_SHORT).show();
 
                     final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        Toast.makeText(ShareLocationActivity.this, "GPS access not detect by app", Toast.LENGTH_SHORT).show();
                         buildAlertMessageNoGps();
-                    }
-                    if (!Common.isConnectedToInternet(getBaseContext())) {
+                    } else if (!Common.isConnectedToInternet(getBaseContext())) {
                         Common common = new Common();
                         common.show(getSupportFragmentManager(), "Seeking internet");
                     }
-
+                    Toast.makeText(ShareLocationActivity.this, "Something fessing", Toast.LENGTH_SHORT).show();
                     if (b[0]) {
                         linearLayout.setVisibility(View.INVISIBLE);
                         linearLayoutLoadingAnimation.setVisibility(View.VISIBLE);
@@ -122,6 +134,7 @@ public class ShareLocationActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private Runnable sendLocationToServer = new Runnable() {
         @Override
@@ -160,7 +173,7 @@ public class ShareLocationActivity extends AppCompatActivity {
                 };
                 requestQueue.add(request);
             }
-
+            Toast.makeText(ShareLocationActivity.this, "thread running", Toast.LENGTH_SHORT).show();
             handler.postDelayed(this, 3000);
         }
     };
@@ -168,11 +181,13 @@ public class ShareLocationActivity extends AppCompatActivity {
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Please turn on your GPS")
-                .setCancelable(false)
+                .setCancelable(true)
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                         if (!isThreadAlive) sendLocationToServer.run();
+                        dialog.dismiss();
+                        dialog.cancel();
                     }
                 })
                 .setNegativeButton("No, Thanks", new DialogInterface.OnClickListener() {
@@ -193,6 +208,12 @@ public class ShareLocationActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if(!isThreadAlive) sendLocationToServer.run();
+    }
+
+    @Override
     public void onBackPressed() {
         super.onBackPressed();
         try {
@@ -207,5 +228,6 @@ public class ShareLocationActivity extends AppCompatActivity {
         startActivity(intent1);
         finish();
     }
+
 
 }
