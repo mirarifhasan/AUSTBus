@@ -114,17 +114,25 @@ public class ShareLocationActivity extends AppCompatActivity {
                 } else {
                     handler.removeCallbacks(sendLocationToServer);
                     isThreadAlive = false;
-                    Toast.makeText(ShareLocationActivity.this, "Thread Off, location not accessed", Toast.LENGTH_SHORT).show();
 
                     final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        Toast.makeText(ShareLocationActivity.this, "GPS access not detect by app", Toast.LENGTH_SHORT).show();
                         buildAlertMessageNoGps();
-                    } else if (!Common.isConnectedToInternet(getBaseContext())) {
+                    }
+                    else if (!Common.isConnectedToInternet(getBaseContext())) {
                         Common common = new Common();
                         common.show(getSupportFragmentManager(), "Seeking internet");
                     }
-                    Toast.makeText(ShareLocationActivity.this, "Something fessing", Toast.LENGTH_SHORT).show();
+                    else{
+                        try {
+                            Toast.makeText(ShareLocationActivity.this, String.valueOf(location.getLongitude()), Toast.LENGTH_SHORT).show();
+                        }catch (Exception e){
+                            Toast.makeText(ShareLocationActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                        }
+                        if(!isThreadAlive) sendLocationToServer.run();return;
+                    }
+
+                    Toast.makeText(ShareLocationActivity.this, "Problem", Toast.LENGTH_SHORT).show();
                     if (b[0]) {
                         linearLayout.setVisibility(View.INVISIBLE);
                         linearLayoutLoadingAnimation.setVisibility(View.VISIBLE);
@@ -173,7 +181,6 @@ public class ShareLocationActivity extends AppCompatActivity {
                 };
                 requestQueue.add(request);
             }
-            Toast.makeText(ShareLocationActivity.this, "thread running", Toast.LENGTH_SHORT).show();
             handler.postDelayed(this, 3000);
         }
     };
@@ -185,7 +192,6 @@ public class ShareLocationActivity extends AppCompatActivity {
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                        if (!isThreadAlive) sendLocationToServer.run();
                         dialog.dismiss();
                         dialog.cancel();
                     }
@@ -229,5 +235,15 @@ public class ShareLocationActivity extends AppCompatActivity {
         finish();
     }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        if(!isThreadAlive) sendLocationToServer.run();
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(isThreadAlive) handler.removeCallbacks(sendLocationToServer);
+    }
 }
