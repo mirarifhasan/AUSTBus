@@ -61,7 +61,7 @@ public class ShareLocationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_location);
 
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue = Volley.newRequestQueue(this);
 
         client = LocationServices.getFusedLocationProviderClient(this);
         bus = new Bus(getIntent().getIntExtra("busID", 0), getIntent().getStringExtra("busName"));
@@ -97,7 +97,7 @@ public class ShareLocationActivity extends AppCompatActivity {
 
     @SuppressWarnings({"MissingPermission"})
     private void getLocation() {
-        if (!PermissionsManager.areLocationPermissionsGranted(getApplicationContext())) {
+        if (!PermissionsManager.areLocationPermissionsGranted(this)) {
             Toast.makeText(ShareLocationActivity.this, "Location permission not provided", Toast.LENGTH_SHORT).show();
             Intent intent1 = new Intent(ShareLocationActivity.this, ViewBusActivity.class);
             startActivity(intent1);

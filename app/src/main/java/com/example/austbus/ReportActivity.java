@@ -69,13 +69,13 @@ public class ReportActivity extends AppCompatActivity {
                                 JSONObject obj = new JSONObject(response);
 
                                 if(obj.getBoolean("status")){
-                                    Toast.makeText(getApplicationContext(), "Report placed successfully", Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(getApplicationContext(), ViewBusActivity.class).putExtra("jsonResponse", response);
+                                    Toast.makeText(ReportActivity.this, "Report placed successfully", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(ReportActivity.this, ViewBusActivity.class).putExtra("jsonResponse", response);
                                     startActivity(intent);
                                     finish();
                                 }
                                 else{
-                                    Toast.makeText(getApplicationContext(), "Server Error", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ReportActivity.this, "Server Error", Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -99,7 +99,7 @@ public class ReportActivity extends AppCompatActivity {
                     requestQueue.add(request);
                 }
                 else{
-                    Toast.makeText(getApplicationContext(), "Empty field", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ReportActivity.this, "Empty field", Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -75,7 +75,7 @@ public class BusListActivity extends AppCompatActivity {
     }
 
     private void getBusListOnRecyclerView() {
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, showUrl, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -90,7 +90,7 @@ public class BusListActivity extends AppCompatActivity {
                         Bus busObj = new Bus(bus.getString("BusName"), bus.getString("RouteToAUST"), bus.getInt("BusID"));
                         models.add(busObj);
                     }
-                    busListAdapter = new BusListAdapter(getApplicationContext(), models);
+                    busListAdapter = new BusListAdapter(BusListActivity.this, models);
                     recyclerView.setAdapter(busListAdapter);
                     lottieAnimationView.setVisibility(View.INVISIBLE);
 

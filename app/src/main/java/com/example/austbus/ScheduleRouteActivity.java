@@ -76,7 +76,7 @@ public class ScheduleRouteActivity extends AppCompatActivity {
     }
 
     private void getBusListOnRecyclerView() {
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue = Volley.newRequestQueue(this);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, showUrl, new Response.Listener<JSONObject>() {
             @Override
@@ -92,7 +92,7 @@ public class ScheduleRouteActivity extends AppCompatActivity {
                         Bus busObj = new Bus(bus.getString("BusName"), bus.getString("RouteToAUST"), bus.getInt("BusID"), bus.getString("StartingTime"), bus.getString("DepartureTime"));
                         models.add(busObj);
                     }
-                    busDetailsAdapter = new BusDetailsAdapter(getApplicationContext(), models);
+                    busDetailsAdapter = new BusDetailsAdapter(ScheduleRouteActivity.this, models);
                     recyclerView.setAdapter(busDetailsAdapter);
                     loadingAnimation.setVisibility(View.INVISIBLE);
 

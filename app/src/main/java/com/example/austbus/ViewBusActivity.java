@@ -101,7 +101,7 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue = Volley.newRequestQueue(this);
 
         mapView.getMapAsync(this);
 
@@ -283,8 +283,10 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onPause() {
         super.onPause();
         mapView.onPause();
-        handler.removeCallbacks(loadBus);
-        isThreadRunning = false;
+        if(isThreadRunning){
+            handler.removeCallbacks(loadBus);
+            isThreadRunning = false;
+        }
     }
 
 
@@ -292,8 +294,10 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onStop() {
         super.onStop();
         mapView.onStop();
-        handler.removeCallbacks(loadBus);
-        isThreadRunning = false;
+        if(isThreadRunning){
+            handler.removeCallbacks(loadBus);
+            isThreadRunning = false;
+        }
     }
 
 
@@ -315,8 +319,10 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
-        handler.removeCallbacks(loadBus);
-        isThreadRunning = false;
+        if(isThreadRunning){
+            handler.removeCallbacks(loadBus);
+            isThreadRunning = false;
+        }
     }
 
 
@@ -348,24 +354,30 @@ public class ViewBusActivity extends AppCompatActivity implements OnMapReadyCall
                 break;
 
             case R.id.sharePosition:
-                handler.removeCallbacks(loadBus);
-                isThreadRunning = false;
+                if(isThreadRunning){
+                    handler.removeCallbacks(loadBus);
+                    isThreadRunning = false;
+                }
                 Intent intent = new Intent(ViewBusActivity.this, BusListActivity.class);
                 startActivity(intent);
                 finish();
                 break;
 
             case R.id.routeSchedule:
-                handler.removeCallbacks(loadBus);
-                isThreadRunning = false;
+                if(isThreadRunning){
+                    handler.removeCallbacks(loadBus);
+                    isThreadRunning = false;
+                }
                 Intent intent2 = new Intent(ViewBusActivity.this, ScheduleRouteActivity.class);
                 startActivity(intent2);
                 finish();
                 break;
 
             case R.id.complain:
-                handler.removeCallbacks(loadBus);
-                isThreadRunning = false;
+                if(isThreadRunning){
+                    handler.removeCallbacks(loadBus);
+                    isThreadRunning = false;
+                }
                 Intent intent1 = new Intent(ViewBusActivity.this, ReportActivity.class);
                 startActivity(intent1);
                 finish();
